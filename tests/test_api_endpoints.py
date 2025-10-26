@@ -1,23 +1,28 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
+import pytest_asyncio
+from typing import AsyncGenerator, Generator
 
 class TestAPIEndpoints:
-    @pytest.fixture
-    def client(self):
+    @pytest_asyncio.fixture
+    async def client(self) -> AsyncGenerator:
         from oracle.scarindex_service import app
-        return TestClient(app)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            yield ac
     
-    def test_health_endpoint(self, client):
+    @pytest.mark.asyncio
+    async def test_health_endpoint(self, client):
         """Test health check endpoint"""
-        response = client.get("/health")
+        response = await client.get("/health")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
         assert data["service"] == "ScarIndex Oracle"
         
-    def test_compute_scarindex_endpoint(self, client):
+    @pytest.mark.asyncio
+    async def test_compute_scarindex_endpoint(self, client):
         """Test ScarIndex computation endpoint"""
-        response = client.post("/compute-scarindex")
+        response = await client.post("/compute-scarindex")
         assert response.status_code == 200
         
         data = response.json()
@@ -30,9 +35,10 @@ class TestAPIEndpoints:
         assert 0 <= data["scar_index"] <= 1
         assert all(comp in data["components"] for comp in ["Narrative", "Social", "Economic", "Technical"])
         
-    def test_f4_trigger_check(self, client):
+    @pytest.mark.asyncio
+    async def test_f4_trigger_check(self, client):
         """Test F4 trigger check endpoint"""
-        response = client.get("/f4-trigger-check")
+        response = await client.get("/f4-trigger-check")
         assert response.status_code == 200
         
         data = response.json()

@@ -13,14 +13,15 @@ class Settings(BaseSettings):
     ctms_api_key: Optional[str] = None
     
     # Blockchain Integration
-    starknet_rpc_url: str = "https://starknet-mainnet.infura.io"
-    polygon_rpc_url: str = "https://polygon-mainnet.infura.io"
+    starknet_rpc_url: str = "https://starknet-mainnet.infura.io/v3/your_project_id"
+    polygon_rpc_url: str = "https://polygon-mainnet.infura.io/v3/your_project_id"
     
     # Crisis Thresholds
     f4_activation_threshold: float = 0.3
     emergency_omega_base: float = 7.5
     
-    class Config:
-        env_file = ".env"
+    model_config = {
+        "env_file": ".env"
+    }
 
 settings = Settings()

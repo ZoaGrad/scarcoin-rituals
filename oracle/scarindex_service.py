@@ -90,7 +90,7 @@ async def compute_scarindex_endpoint(background_tasks: BackgroundTasks):
     )
     
     scar_index = compute_scarindex(metrics)
-    components = metrics.dict()
+    components = metrics.model_dump()
     
     # Generate attestation for on-chain use
     signature = generate_attestation(scar_index, components)
